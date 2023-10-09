@@ -9,7 +9,7 @@ __global__ void add_matrix(float *a, float *b, float *c) {
 
 int main() {
     const int N = 16;
-    const int blocksize = 16;
+    const int blocksize = 4;
 
     float *a = new float[N * N];
     float *b = new float[N * N];
@@ -34,7 +34,7 @@ int main() {
     cudaMemcpy(b_d, b, size, cudaMemcpyHostToDevice);
 
     dim3 dimBlock(blocksize, 1);
-    dim3 dimGrid(N / dimBlock.x, 1);
+    dim3 dimGrid((N * N) / dimBlock.x, 1);
 
     add_matrix<<<dimGrid, dimBlock>>>(a_d, b_d, c_d);
 
