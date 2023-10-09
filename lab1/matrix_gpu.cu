@@ -13,7 +13,8 @@ int main() {
 
     float *a = new float[N * N];
     float *b = new float[N * N];
-    float *c;
+    float *c_h = new float[N * N];
+    float *c_d;
 
     for (int i = 0; i < N; i++)
         for (int j = 0; j < N; j++) {
@@ -29,9 +30,11 @@ int main() {
 
     add_matrix<<<dimGrid, dimBlock>>>(a, b, c);
 
+    cudaMemcpy(c_h, c_d, size, cudaMemcpyDeviceToHost);
+
     for (int i = 0; i < N; i++) {
         for (int j = 0; j < N; j++) {
-            std::cout << c[i + j * N] << " ";
+            std::cout << c_h[i + j * N] << " ";
         }
         std::cout << std::endl;
     }
