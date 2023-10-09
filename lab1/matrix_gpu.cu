@@ -14,7 +14,10 @@ int main() {
     float *a = new float[N * N];
     float *b = new float[N * N];
     float *c_h = new float[N * N];
+    float *a_d;
+    float *b_d;
     float *c_d;
+
 
     for (int i = 0; i < N; i++)
         for (int j = 0; j < N; j++) {
@@ -23,12 +26,17 @@ int main() {
         }
 
     const int size = N * N * sizeof(float);
+    cudaMalloc((void **) &a_d, size);
+    cudaMalloc((void **) &b_d, size);
     cudaMalloc((void **) &c_d, size);
+
+    cudaMemcpy(a_d, a, size, cudaMemcpyHostToDevice);
+    cudaMemcpy(b_d, b, size, cudaMemcpyHostToDevice);
 
     dim3 dimBlock(blocksize, 1);
     dim3 dimGrid(N / dimBlock.x, 1);
 
-    add_matrix<<<dimGrid, dimBlock>>>(a, b, c);
+    add_matrix<<<dimGrid, dimBlock>>>(a_d, b_d, c_d);
 
     cudaMemcpy(c_h, c_d, size, cudaMemcpyDeviceToHost);
 
