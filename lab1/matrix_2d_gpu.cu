@@ -14,9 +14,9 @@ int main() {
     const int cols = N;
     const int blocksize = 4;
 
-    float **a_h = new float[rows][cols];
-    float **b_h = new float[rows][cols];
-    float **c_h = new float[rows][cols];
+    float a_h = new float[rows][cols];
+    float b_h = new float[rows][cols];
+    float c_h = new float[rows][cols];
     float **a_d;
     float **b_d;
     float **c_d;
