@@ -2,29 +2,29 @@
 
 #include <iostream>
 
-__global__ void add_matrix(float *a, float *b, float *c) {
+__global__ void add_matrix(float **a, float **b, float **c) {
     int idx_x = blockIdx.x * blockDim.x + threadIdx.x;
     int idx_y = blockIdx.y * blockDim.y + threadIdx.y;
-    c[idx_x][idx_y] = a[idx_x][idx_y] + b[idx_x][idx_y]
+    c[idx_x][idx_y] = a[idx_x][idx_y] + b[idx_x][idx_y];
 }
 
 int main() {
     const int N = 16;
-    int rows = N;
-    int cols = N;
+    const int rows = N;
+    const int cols = N;
     const int blocksize = 4;
 
-    float *a = new float[rows][cols];
-    float *b = new float[rows][cols];
-    float *c_h = new float[rows][cols];
-    float *a_d;
-    float *b_d;
-    float *c_d;
+    float **a_h = new float[rows][cols];
+    float **b_h = new float[rows][cols];
+    float **c_h = new float[rows][cols];
+    float **a_d;
+    float **b_d;
+    float **c_d;
 
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
-            a[i][j] = 10 + i;
-            b[i][j] = float(j) / N;
+            a_h[i][j] = 10 + i;
+            b_h[i][j] = float(j) / N;
         }
     }
 
