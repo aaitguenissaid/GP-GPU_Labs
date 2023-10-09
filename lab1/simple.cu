@@ -6,7 +6,7 @@
 
 __global__ void simple(float *c) {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
-    c[idx] = pow(threadIdx.x, 0.5);
+    c[idx] = pow(idx, 0.5);
 }
 
 int main() {
