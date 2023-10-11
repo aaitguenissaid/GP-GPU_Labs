@@ -48,9 +48,9 @@ int main() {
         }
     }
 
-    size_t **a_dev_pitch;
-    size_t **b_dev_pitch;
-    size_t **c_dev_pitch;
+    size_t a_dev_pitch;
+    size_t b_dev_pitch;
+    size_t c_dev_pitch;
 
     cudaMallocPitch(&a_d[0], &a_dev_pitch, cols_size * sizeof(float), rows);
     cudaMallocPitch(&b_d[0], &b_dev_pitch, cols_size * sizeof(float), rows);
