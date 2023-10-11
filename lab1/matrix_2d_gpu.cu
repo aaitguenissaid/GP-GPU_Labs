@@ -48,15 +48,19 @@ int main() {
         }
     }
 
-    cudaMallocPitch(&a_d[0], &a_h[0], cols_size * sizeof(float), rows);
-    cudaMallocPitch(&b_d[0], &b_h[0], cols_size * sizeof(float), rows);
+    size_t *a_dev_pitch;
+    size_t *b_dev_pitch;
+    size_t *c_dev_pitch;
+
+    cudaMallocPitch(&a_d[0], &a_dev_pitch, cols_size * sizeof(float), rows);
+    cudaMallocPitch(&b_d[0], &b_dev_pitch, cols_size * sizeof(float), rows);
 
     dim3 dimBlock(blocksize, blocksize);
     dim3 dimGrid(rows / dimBlock.x, cols / dimBlock.y);
 
     add_matrix<<<dimGrid, dimBlock>>>(a_d, b_d, c_d);
 
-    cudaMallocPitch(&c_h[0], &c_d[0], cols_size * sizeof(float), rows);
+    cudaMallocPitch(&c_h[0], &c_dev_pitch, cols_size * sizeof(float), rows);
 
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
