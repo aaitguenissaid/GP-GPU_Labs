@@ -1,6 +1,12 @@
 ## IDE
 .idea/
 
+## executables
+matrix_2d_gpu
+matrix_cpu
+matrix_gpu
+simple
+
 ## CUDA
 *.i
 *.ii
