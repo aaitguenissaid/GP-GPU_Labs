@@ -48,15 +48,15 @@ int main() {
         }
     }
 
-    cudaMemcpy2D(a_d[0], cols_size, a_h[0], cols_size, cols_size, rows, cudaMemcpyHostToDevice);
-    cudaMemcpy2D(b_d[0], cols_size, b_h[0], cols_size, cols_size, rows, cudaMemcpyHostToDevice);
+    cudaMallocPitch(&a_d[0], &a_h[0], cols_size * sizeof(float), rows);
+    cudaMallocPitch(&b_d[0], &b_h[0], cols_size * sizeof(float), rows);
 
     dim3 dimBlock(blocksize, blocksize);
     dim3 dimGrid(rows / dimBlock.x, cols / dimBlock.y);
 
     add_matrix<<<dimGrid, dimBlock>>>(a_d, b_d, c_d);
 
-    cudaMemcpy2D(c_h[0], cols_size, c_d[0], cols_size, cols_size, rows, cudaMemcpyDeviceToHost);
+    cudaMallocPitch(&c_h[0], &c_d[0], cols_size * sizeof(float), rows);
 
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
