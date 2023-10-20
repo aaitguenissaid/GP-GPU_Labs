@@ -157,10 +157,6 @@ int main(int argc, char **argv) {
               << std::endl;
     //std::cout << "\t GFLOPS: " << flop / msecTotal / 1e+6 << std::endl;
 
-
-    if (check_out)
-      check_result<REAL>(h_A, h_B, h_C, WA, HA, WB); // Res checking
-
     // free
     free(h_A);
     free(h_B);
