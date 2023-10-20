@@ -45,4 +45,14 @@ int main() {
         }
         std::cout << std::endl;
     }
+
+    // Free device memory
+    cudaFree(a_d);
+    cudaFree(a_b);
+    cudaFree(a_c);
+
+    // Free host memory
+    free(a_h);
+    free(b_h);
+    free(c_h);
 }
