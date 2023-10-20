@@ -159,7 +159,7 @@ int main(int argc, char **argv) {
 
 
     if (check_out)
-      check_result<REAL>(A, B, C, M, N, K); // Res checking
+      check_result<REAL>(h_A, h_B, h_C, WA, HA, WB); // Res checking
 
     // free
     free(h_A);
