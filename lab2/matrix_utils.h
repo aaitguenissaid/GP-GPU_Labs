@@ -30,14 +30,15 @@
 /// \param B Second matrix to initialize 
 /// \param N Size of the matrix
 /// ----------------------------------------------------------------------------
-template <typename T> void fill_random(T *&A, int N, int M) {
-  std::mt19937 e(static_cast<unsigned int>(std::time(nullptr)));
-  std::uniform_real_distribution<T> f;
-  for (int i = 0; i < N; ++i) {
-    for (int j = 0; j < M; ++j) {
-      A[i * M + j] = f(e);
+template<typename T>
+void fill_random(T *&A, int N, int M) {
+    std::mt19937 e(static_cast<unsigned int>(std::time(nullptr)));
+    std::uniform_real_distribution<T> f;
+    for (int i = 0; i < N; ++i) {
+        for (int j = 0; j < M; ++j) {
+            A[i * M + j] = f(e);
+        }
     }
-  }
 }
 
 /// ----------------------------------------------------------------------------
@@ -47,12 +48,13 @@ template <typename T> void fill_random(T *&A, int N, int M) {
 /// \param M Number of rows of the matrix
 /// \param N Number of columns of the matrix
 /// ----------------------------------------------------------------------------
-template <typename T> void fill_zero(T *&A, int M, int N) {
-  for (int i = 0; i < M; ++i) {
-    for (int j = 0; j < N; ++j) {
-      A[i * M + j] = T(0.0);
+template<typename T>
+void fill_zero(T *&A, int M, int N) {
+    for (int i = 0; i < M; ++i) {
+        for (int j = 0; j < N; ++j) {
+            A[i * M + j] = T(0.0);
+        }
     }
-  }
 }
 
 /// ----------------------------------------------------------------------------
@@ -63,28 +65,29 @@ template <typename T> void fill_zero(T *&A, int M, int N) {
 /// \param M number of rows of the matrix
 /// \param N nimber of columns of the matrix
 /// ----------------------------------------------------------------------------
-template <typename T> bool load_matrix(char *filename, T *&A, int &M, int &N) {
-  std::string line;
-  std::ifstream infile(filename);
+template<typename T>
+bool load_matrix(char *filename, T *&A, int &M, int &N) {
+    std::string line;
+    std::ifstream infile(filename);
 
-  if (!infile.is_open()) {
-    std::cerr << "File not found: " << filename << std::endl;
-    std::exit(EXIT_FAILURE);
-  }
+    if (!infile.is_open()) {
+        std::cerr << "File not found: " << filename << std::endl;
+        std::exit(EXIT_FAILURE);
+    }
 
-  // Load the size of the matrix
-  infile >> M >> N;
+    // Load the size of the matrix
+    infile >> M >> N;
 
-  // Allocate memory for the matrix
-  A = new T[M * N];
+    // Allocate memory for the matrix
+    A = new T[M * N];
 
-  // Load matrix coefficients
-  for (int i = 0; i < M * N; i++) {
-    infile >> A[i];
-  }
+    // Load matrix coefficients
+    for (int i = 0; i < M * N; i++) {
+        infile >> A[i];
+    }
 
-  infile.close();
-  return 1;
+    infile.close();
+    return 1;
 }
 
 /// ----------------------------------------------------------------------------
@@ -97,58 +100,58 @@ template <typename T> bool load_matrix(char *filename, T *&A, int &M, int &N) {
 /// ----------------------------------------------------------------------------
 template<typename T>
 void check_result(T *&A, T *&B, T *&C, int M, int N, int K) {
-  T *C_check = new T[M*N];
-  std::cerr<< " == Checking results against sequential CPU" <<std::endl;
-  gemm_cpu_blas_seq<T>(A, B, C_check, M, N, K);
+    T *C_check = new T[M * N];
+    std::cerr << " == Checking results against sequential CPU" << std::endl;
+    gemm_cpu_blas_seq<T>(A, B, C_check, M, N, K);
 
-  // Comparing the different results
-  // - maximum difference
-  double max_diff = 0.0;
-  // - position with the largest relative difference
-  int max_X = 0;
-  int max_Y = 0;
-  // - epsilon for relative differences
-  auto epsilon = std::pow(10.,2-(std::numeric_limits<T>::digits10));
+    // Comparing the different results
+    // - maximum difference
+    double max_diff = 0.0;
+    // - position with the largest relative difference
+    int max_X = 0;
+    int max_Y = 0;
+    // - epsilon for relative differences
+    auto epsilon = std::pow(10., 2 - (std::numeric_limits<T>::digits10));
 
-  // - number of cases where the error is too large
-  int cases = 0;
+    // - number of cases where the error is too large
+    int cases = 0;
 
-  for (int i = 0; i < M; ++i) {
-    for (int j = 0; j < N; ++j) {
-      // difference between results
-      auto diff = fabs(C[i * M + j] - C_check[i * M + j]);
-      auto standard = fabs(C_check[i * M + j]);
+    for (int i = 0; i < M; ++i) {
+        for (int j = 0; j < N; ++j) {
+            // difference between results
+            auto diff = fabs(C[i * M + j] - C_check[i * M + j]);
+            auto standard = fabs(C_check[i * M + j]);
 
-      // Checks if the difference is large with respect to number representation.
-      if (diff > standard * epsilon) {
-        ++cases; // Register the case
-      }
-      // Store the largest difference seen so far
-      if (diff > standard * max_diff) {
-        max_diff = diff / standard;
-        max_X = i;
-        max_Y = j;
-      }
+            // Checks if the difference is large with respect to number representation.
+            if (diff > standard * epsilon) {
+                ++cases; // Register the case
+            }
+            // Store the largest difference seen so far
+            if (diff > standard * max_diff) {
+                max_diff = diff / standard;
+                max_X = i;
+                max_Y = j;
+            }
+        }
     }
-  }
 
-  if (cases == 0) {
-    std::cerr << "\t The results are correct for " << typeid(A).name()
-              << " with a precision of " << epsilon << std::endl;
-    std::cerr << "\t Maximum relative difference encountered: " << max_diff
-              << std::endl;
-  } else {
-    std::cerr << "*** WARNING ***" << std::endl;
-    std::cerr << "\t The results are incorrect for float" << " "
-              << " with a precision of " << epsilon << std::endl;
-    std::cerr << "\t Number of cell with imprecise results: " << cases
-              << std::endl;
-    std::cerr << "\t Cell C[" << max_X << "][" << max_Y
-              << "] contained the largest relative difference of " << max_diff
-              << std::endl;
-    std::cerr<< "\t Expected value:<" <<C_check[max_X*N + max_Y]<<std::endl;
-    std::cerr<< "\t Computed value: " <<C[max_X*N + max_Y]<<std::endl;
-  }
+    if (cases == 0) {
+        std::cerr << "\t The results are correct for " << typeid(A).name()
+                  << " with a precision of " << epsilon << std::endl;
+        std::cerr << "\t Maximum relative difference encountered: " << max_diff
+                  << std::endl;
+    } else {
+        std::cerr << "*** WARNING ***" << std::endl;
+        std::cerr << "\t The results are incorrect for float" << " "
+                  << " with a precision of " << epsilon << std::endl;
+        std::cerr << "\t Number of cell with imprecise results: " << cases
+                  << std::endl;
+        std::cerr << "\t Cell C[" << max_X << "][" << max_Y
+                  << "] contained the largest relative difference of " << max_diff
+                  << std::endl;
+        std::cerr << "\t Expected value:<" << C_check[max_X * N + max_Y] << std::endl;
+        std::cerr << "\t Computed value: " << C[max_X * N + max_Y] << std::endl;
+    }
 }
 
 /// ----------------------------------------------------------------------------
@@ -160,8 +163,8 @@ void check_result(T *&A, T *&B, T *&C, int M, int N, int K) {
 /// ----------------------------------------------------------------------------
 template<typename T>
 void transpose(T *&B, T *&Btrans, int M, int N) {
-  for (int i = 0; i < M; i++)
-    for (int j = 0; j < N; j++)
-      Btrans[j * N + i] = B[i * M + j];
+    for (int i = 0; i < M; i++)
+        for (int j = 0; j < N; j++)
+            Btrans[j * N + i] = B[i * M + j];
 }
 

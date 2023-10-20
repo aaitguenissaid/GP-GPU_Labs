@@ -19,17 +19,17 @@
 /// \param N Number of columns of B
 /// \param K Number of rows of B
 /// ----------------------------------------------------------------------------
-template <typename T>
+template<typename T>
 void gemm_cpu_noblas_seq(T *&A, T *&B, T *&C, int M, int N, int K) {
-  for (int i = 0; i < M; i++) {
-    for (int j = 0; j < N; j++) {
-      T tmp = T(0.0);
-      for (int k = 0; k < K; k++) {
-        tmp += A[i * N + k] * B[k * M + j];
-      }
-      C[i * M + j] = tmp;
+    for (int i = 0; i < M; i++) {
+        for (int j = 0; j < N; j++) {
+            T tmp = T(0.0);
+            for (int k = 0; k < K; k++) {
+                tmp += A[i * N + k] * B[k * M + j];
+            }
+            C[i * M + j] = tmp;
+        }
     }
-  }
 }
 
 /// ----------------------------------------------------------------------------
@@ -42,17 +42,17 @@ void gemm_cpu_noblas_seq(T *&A, T *&B, T *&C, int M, int N, int K) {
 /// \param N Number of columns of B
 /// \param K Number of rows of B
 /// ----------------------------------------------------------------------------
-template <typename T>
-void gemm_cpu_noblas_par(T *&A, T *&B, T  *&C, int M, int N, int K) {
+template<typename T>
+void gemm_cpu_noblas_par(T *&A, T *&B, T *&C, int M, int N, int K) {
 #pragma omp parallel for shared(A, B, C, N, M, K)
-  for (int i = 0; i < M; i++) {
-    for (int j = 0; j < N; j++) {
-      T tmp= T(0.0);
-      for (int k = 0; k < K; k++) {
-        tmp += A[i * K + k] * B[k * N + j];
-      }
-      C[i * N + j] = tmp;
+    for (int i = 0; i < M; i++) {
+        for (int j = 0; j < N; j++) {
+            T tmp = T(0.0);
+            for (int k = 0; k < K; k++) {
+                tmp += A[i * K + k] * B[k * N + j];
+            }
+            C[i * N + j] = tmp;
+        }
     }
-  }
 }
 

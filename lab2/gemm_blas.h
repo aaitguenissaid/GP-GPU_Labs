@@ -10,7 +10,9 @@
 #ifdef __APPLE__
 #include <Accelerate/Accelerate.h>
 #else
+
 #include <cblas.h>
+
 #endif
 
 /// Parallelism on CPU
@@ -26,8 +28,8 @@
 /// \param N Number of columns of B
 /// \param K Number of rows of B
 /// ----------------------------------------------------------------------------
-template <typename T>
-void gemm_cpu_blas_seq(T *&A, T *&B, T  *&C, int M, int N, int K) {
-  cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, M, N, K, 1.0, &A[0], K,
-              &B[0], N, 0.0, &C[0], N);
+template<typename T>
+void gemm_cpu_blas_seq(T *&A, T *&B, T *&C, int M, int N, int K) {
+    cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, M, N, K, 1.0, &A[0], K,
+                &B[0], N, 0.0, &C[0], N);
 }
