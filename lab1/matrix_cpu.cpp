@@ -33,4 +33,8 @@ int main() {
         }
         std::cout << std::endl;
     }
+
+    free(a);
+    free(b);
+    free(c);
 }
