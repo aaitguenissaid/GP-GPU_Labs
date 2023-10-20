@@ -84,7 +84,7 @@ int main(int argc, char **argv) {
                deviceProp.minor);
     }
 
-    for (int block_size = 16; block_size <= 2048; block_size = block_size * 2) {
+    for (int block_size = 16; block_size <= 4096; block_size = block_size * 2) {
         std::cout << "block_size : " << block_size << "\t " << std::endl;
         for (int i = 2; i <= 4096; i = i * 2) {
             // Initialize matrix dimensions
