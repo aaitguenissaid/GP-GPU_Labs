@@ -19,7 +19,7 @@
 #include "matrix_utils.h"
 
 /// Define size of matrices
-#define SIZE 512 
+//#define SIZE 512 
 
 /*----------------------------------------------------------------------------*/
 /* Floating point datatype and op                                             */
@@ -35,7 +35,7 @@ typedef float REAL;
 /* Toplevel function.                                                         */
 /*----------------------------------------------------------------------------*/
 int main(int argc, char *argv[]) {
-  std::cout << "[Matrix Multiply Using CPU]" << std::endl;
+  //std::cout << "[Matrix Multiply Using CPU]" << std::endl;
 
   // Define parser 
   args::ArgumentParser parser("gemm_cpu", "Matrix Multiply using CPU");
@@ -67,53 +67,59 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
-  // Initialize matrix dimensions
-  int WA, WB, HA, HB, WC, HC;
-  WA = args::get(widthA);
-  WB = args::get(widthB);
-  HA = args::get(heightA);
-  HB = args::get(heightB);
+  for(int i=128; i<=4096; i=i*2){
+    // Initialize matrix dimensions
+    int WA, WB, HA, HB, WC, HC;
+    WA = i;
+    WB = i;
+    HA = i;
+    HB = i;
 
-  // Initialisation 
-  int M = WA;
-  int N = HA;
-  int K = WB;
+    // Initialisation 
+    int M = WA;
+    int N = HA;
+    int K = WB;
 
-  REAL *A = new REAL[M*K];
-  REAL *B = new REAL[K*N];
+    REAL *A = new REAL[M*K];
+    REAL *B = new REAL[K*N];
 
-  fill_random<REAL>(A, M, K);
-  fill_random<REAL>(B, K, N);
-  REAL *C = new REAL[M*N];
-  REAL *TB = new REAL[N*K];
-  fill_zero<REAL>(C, M, N);
+    fill_random<REAL>(A, M, K);
+    fill_random<REAL>(B, K, N);
+    REAL *C = new REAL[M*N];
+    REAL *TB = new REAL[N*K];
+    fill_zero<REAL>(C, M, N);
 
 
-  // Matrix product computation
-  std::cout << " Product of two matrices of float"
-            << " of size " << M << "x" << K << " and " << K << "x" << N
-            << std::endl;
+    // Matrix product computation
+    //std::cout << " Product of two matrices of float"
+    //          << " of size " << M << "x" << K << " and " << K << "x" << N
+    //          << std::endl;
 
-  std::cout << " == Computation starts..." << std::endl;
+    //std::cout << " == Computation starts..." << std::endl;
 
-  auto start = std::chrono::system_clock::now();
+    auto start = std::chrono::system_clock::now();
 
-  gemm_cpu_noblas_seq<REAL>(A, B, C, M, N, K); 
-  
-  auto elapse = std::chrono::system_clock::now() - start;
-  auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(elapse);
+    gemm_cpu_noblas_seq<REAL>(A, B, C, M, N, K); 
+    
+    auto elapse = std::chrono::system_clock::now() - start;
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(elapse);
 
-  /* Performance computation, results and performance printing ------------ */
-  auto flop = 2 * float(M) * float(N) * float(K) ;
+    /* Performance computation, results and performance printing ------------ */
+    auto flop = 2 * float(M) * float(N) * float(K) ;
 
-  std::cout << " == Performances " << std::endl;
-  std::cout << "\t Processing time: " << duration.count() << " (ms)"
-            << std::endl;
-  std::cout << "\t GFLOPS: " << flop / duration.count() / 1e+6 << std::endl;
+    //std::cout << " == Performances " << std::endl;
+    std::cout << i << "\t " << duration.count() << "\t " << flop / duration.count() / 1e+6
+              << std::endl;
+    //  std::cout << "\t GFLOPS: " << flop / duration.count() / 1e+6 << std::endl;
 
-  if (check_out)
-    check_result<REAL>(A, B, C, M, N, K); // Res checking
+    if (check_out)
+      check_result<REAL>(A, B, C, M, N, K); // Res checking
 
+    // free declarations
+    free(A);
+    free(B);
+    free(C);
+  }
   /* End of the parallel program ------------------------------------------ */
   return (EXIT_SUCCESS);
 }

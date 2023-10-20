@@ -24,13 +24,14 @@
 
 #define REAL float
 #define BLOCK_SIZE 32
+#define check_out 1
 
 ///
 /// Top level driver
 ///
 int main(int argc, char **argv) {
 
-  std::cout << "[Matrix Multiply Using CUDA] - Starting..." << std::endl;
+  //std::cout << "[Matrix Multiply Using CUDA] - Starting..." << std::endl;
 
   // Define parser 
   args::ArgumentParser parser("gemm_cuda", "Matrix Multiply using CUDA");
@@ -57,104 +58,116 @@ int main(int argc, char **argv) {
     std::cerr << parser;
     return 1;
   }
+  for(int i=2; i<=4096; i=i*2) {
+    // Initialize matrix dimensions
+    int WA = i;
+    int WB = i;
+    int HA = i;
+    int HB = i;
+    int WC = WA;
+    int HC = HB;
 
-  // Initialize matrix dimensions
-  int WA = args::get(widthA);
-  int WB = args::get(widthB);
-  int HA = args::get(heightA);
-  int HB = args::get(heightB);
-  int WC = WA;
-  int HC = HB;
+    // Setup CUDA environnement 
+    cudaError_t error;
 
-  // Setup CUDA environnement 
-  cudaError_t error;
+    cudaDeviceProp deviceProp;
+    int devID = 0;
+    error = cudaGetDevice(&devID);
 
-  cudaDeviceProp deviceProp;
-  int devID = 0;
-  error = cudaGetDevice(&devID);
+    if (error != cudaSuccess) {
+      printf("cudaGetDevice returned error code %d, line(%d)\n", error, __LINE__);
+    }
 
-  if (error != cudaSuccess) {
-    printf("cudaGetDevice returned error code %d, line(%d)\n", error, __LINE__);
-  }
+    error = cudaGetDeviceProperties(&deviceProp, devID);
 
-  error = cudaGetDeviceProperties(&deviceProp, devID);
+    if (deviceProp.computeMode == cudaComputeModeProhibited) {
+      std::cerr << "Error: device is running in <Compute Mode Prohibited>, no threads can use ::cudaSetDevice() ." <<std::endl;
+      exit(EXIT_SUCCESS);
+    }
 
-  if (deviceProp.computeMode == cudaComputeModeProhibited) {
-    std::cerr << "Error: device is running in <Compute Mode Prohibited>, no threads can use ::cudaSetDevice() ." <<std::endl;
-    exit(EXIT_SUCCESS);
-  }
+    if (error != cudaSuccess) {
+      printf("cudaGetDeviceProperties returned error code %d, line(%d)\n", error, __LINE__);
+    } else {
+      printf("GPU Device %d: \"%s\" with compute capability %d.%d\n\n", devID, deviceProp.name, deviceProp.major, deviceProp.minor);
+    }
 
-  if (error != cudaSuccess) {
-    printf("cudaGetDeviceProperties returned error code %d, line(%d)\n", error, __LINE__);
-  } else {
-    printf("GPU Device %d: \"%s\" with compute capability %d.%d\n\n", devID, deviceProp.name, deviceProp.major, deviceProp.minor);
-  }
+    // utilities
+    cudaEvent_t start;
+    cudaEvent_t stop;
+    float msecTotal;
 
-  // utilities
-  cudaEvent_t start;
-  cudaEvent_t stop;
-  float msecTotal;
-
-  // allocate host memory for matrices A and B
-  unsigned int size_A = WA * HA;
-  unsigned int mem_size_A = sizeof(float) * size_A;
-  float *h_A = (float *)malloc(mem_size_A);
-  unsigned int size_B = WB * HB;
-  unsigned int mem_size_B = sizeof(float) * size_B;
-  float *h_B = (float *)malloc(mem_size_B);
+    // allocate host memory for matrices A and B
+    unsigned int size_A = WA * HA;
+    unsigned int mem_size_A = sizeof(float) * size_A;
+    float *h_A = (float *)malloc(mem_size_A);
+    unsigned int size_B = WB * HB;
+    unsigned int mem_size_B = sizeof(float) * size_B;
+    float *h_B = (float *)malloc(mem_size_B);
+    
+    // initialize host memory
+    fill_random<REAL>(h_A, WA, HA);
+    fill_random<REAL>(h_B, WB, HB);
   
-  // initialize host memory
-  fill_random<REAL>(h_A, WA, HA);
-  fill_random<REAL>(h_B, WB, HB);
- 
-  // allocate device memory
-  float *d_A;
-  cudaMalloc((void **)&d_A, mem_size_A);
-  float *d_B;
-  cudaMalloc((void **)&d_B, mem_size_B);
+    // allocate device memory
+    float *d_A;
+    cudaMalloc((void **)&d_A, mem_size_A);
+    float *d_B;
+    cudaMalloc((void **)&d_B, mem_size_B);
 
-  // allocate device memory for result
-  unsigned int size_C = WA * HB;
-  unsigned int mem_size_C = sizeof(float) * size_C;
-  float *d_C;
-  cudaMalloc((void **)&d_C, mem_size_C);
+    // allocate device memory for result
+    unsigned int size_C = WA * HB;
+    unsigned int mem_size_C = sizeof(float) * size_C;
+    float *d_C;
+    cudaMalloc((void **)&d_C, mem_size_C);
 
-  // allocate host memory for the result
-  float *h_C = (float *)malloc(mem_size_C);
+    // allocate host memory for the result
+    float *h_C = (float *)malloc(mem_size_C);
 
-  dim3 threads, grid;
+    dim3 threads, grid;
 
-  // create and start timer
-  cudaEventCreate(&start);
-  cudaEventRecord(start, NULL);
- 
-  // copy host memory to device
-  cudaMemcpy(d_A, h_A, mem_size_A, cudaMemcpyHostToDevice);
-  cudaMemcpy(d_B, h_B, mem_size_B, cudaMemcpyHostToDevice);
-
-  // setup execution parameters
-  threads = dim3(BLOCK_SIZE, BLOCK_SIZE);
-  grid = dim3(WC / threads.x, HC / threads.y);
+    // create and start timer
+    cudaEventCreate(&start);
+    cudaEventRecord(start, NULL);
   
-  // execute the kernel
-  gemm_naive<<<grid, threads>>>(d_C, d_A, d_B, WA, WB);
+    // copy host memory to device
+    cudaMemcpy(d_A, h_A, mem_size_A, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_B, h_B, mem_size_B, cudaMemcpyHostToDevice);
 
-  // copy result from device to host
-  cudaMemcpy(h_C, d_C, mem_size_C, cudaMemcpyDeviceToHost);
+    // setup execution parameters
+    threads = dim3(BLOCK_SIZE, BLOCK_SIZE);
+    grid = dim3(WC / threads.x, HC / threads.y);
+    
+    // execute the kernel
+    gemm_naive<<<grid, threads>>>(d_C, d_A, d_B, WA, WB);
 
-  // stop and destroy timer
-  cudaEventCreate(&stop);
-  cudaEventRecord(stop, NULL);
-  cudaEventSynchronize(stop);
-  cudaEventElapsedTime(&msecTotal, start, stop);
+    // copy result from device to host
+    cudaMemcpy(h_C, d_C, mem_size_C, cudaMemcpyDeviceToHost);
 
-  /* Performance computation, results and performance printing ------------ */
-  auto flop = 2 * (float)WC * (float)HC * (float)WA;
+    // stop and destroy timer
+    cudaEventCreate(&stop);
+    cudaEventRecord(stop, NULL);
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(&msecTotal, start, stop);
 
-  std::cout << " == Performances " << std::endl;
-  std::cout << "\t Processing time: " << msecTotal << " (ms)"
-            << std::endl;
-  std::cout << "\t GFLOPS: " << flop / msecTotal / 1e+6 << std::endl;
+    /* Performance computation, results and performance printing ------------ */
+    auto flop = 2 * (float)WC * (float)HC * (float)WA;
 
+    //std::cout << " == Performances " << std::endl;
+    std::cout << i << "\t " << msecTotal << "\t " << flop / msecTotal / 1e+6
+              << std::endl;
+    //std::cout << "\t GFLOPS: " << flop / msecTotal / 1e+6 << std::endl;
+
+
+    if (check_out)
+      check_result<REAL>(A, B, C, M, N, K); // Res checking
+
+    // free
+    free(h_A);
+    free(h_B);
+    free(h_C);
+    cudaFree(d_A);
+    cudaFree(d_B);
+    cudaFree(d_C);
+  }
   return (EXIT_SUCCESS);
 }

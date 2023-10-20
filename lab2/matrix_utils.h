@@ -98,7 +98,7 @@ template <typename T> bool load_matrix(char *filename, T *&A, int &M, int &N) {
 template<typename T>
 void check_result(T *&A, T *&B, T *&C, int M, int N, int K) {
   T *C_check = new T[M*N];
-  std::cout<< " == Checking results against sequential CPU" <<std::endl;
+  std::cerr<< " == Checking results against sequential CPU" <<std::endl;
   gemm_cpu_blas_seq<T>(A, B, C_check, M, N, K);
 
   // Comparing the different results
@@ -133,21 +133,21 @@ void check_result(T *&A, T *&B, T *&C, int M, int N, int K) {
   }
 
   if (cases == 0) {
-    std::cout << "\t The results are correct for " << typeid(A).name()
+    std::cerr << "\t The results are correct for " << typeid(A).name()
               << " with a precision of " << epsilon << std::endl;
-    std::cout << "\t Maximum relative difference encountered: " << max_diff
+    std::cerr << "\t Maximum relative difference encountered: " << max_diff
               << std::endl;
   } else {
-    std::cout << "*** WARNING ***" << std::endl;
-    std::cout << "\t The results are incorrect for float" << " "
+    std::cerr << "*** WARNING ***" << std::endl;
+    std::cerr << "\t The results are incorrect for float" << " "
               << " with a precision of " << epsilon << std::endl;
-    std::cout << "\t Number of cell with imprecise results: " << cases
+    std::cerr << "\t Number of cell with imprecise results: " << cases
               << std::endl;
-    std::cout << "\t Cell C[" << max_X << "][" << max_Y
+    std::cerr << "\t Cell C[" << max_X << "][" << max_Y
               << "] contained the largest relative difference of " << max_diff
               << std::endl;
-    std::cout<< "\t Expected value:<" <<C_check[max_X*N + max_Y]<<std::endl;
-    std::cout<< "\t Computed value: " <<C[max_X*N + max_Y]<<std::endl;
+    std::cerr<< "\t Expected value:<" <<C_check[max_X*N + max_Y]<<std::endl;
+    std::cerr<< "\t Computed value: " <<C[max_X*N + max_Y]<<std::endl;
   }
 }
 
