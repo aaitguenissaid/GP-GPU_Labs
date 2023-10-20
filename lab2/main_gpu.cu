@@ -58,16 +58,8 @@ int main(int argc, char **argv) {
     std::cerr << parser;
     return 1;
   }
-  for(int i=2; i<=4096; i=i*2) {
-    // Initialize matrix dimensions
-    int WA = i;
-    int WB = i;
-    int HA = i;
-    int HB = i;
-    int WC = WA;
-    int HC = HB;
 
-    // Setup CUDA environnement 
+    // Setup CUDA environnement
     cudaError_t error;
 
     cudaDeviceProp deviceProp;
@@ -75,21 +67,30 @@ int main(int argc, char **argv) {
     error = cudaGetDevice(&devID);
 
     if (error != cudaSuccess) {
-      printf("cudaGetDevice returned error code %d, line(%d)\n", error, __LINE__);
+        printf("cudaGetDevice returned error code %d, line(%d)\n", error, __LINE__);
     }
 
     error = cudaGetDeviceProperties(&deviceProp, devID);
 
     if (deviceProp.computeMode == cudaComputeModeProhibited) {
-      std::cerr << "Error: device is running in <Compute Mode Prohibited>, no threads can use ::cudaSetDevice() ." <<std::endl;
-      exit(EXIT_SUCCESS);
+        std::cerr << "Error: device is running in <Compute Mode Prohibited>, no threads can use ::cudaSetDevice() ." <<std::endl;
+        exit(EXIT_SUCCESS);
     }
 
     if (error != cudaSuccess) {
-      printf("cudaGetDeviceProperties returned error code %d, line(%d)\n", error, __LINE__);
+        printf("cudaGetDeviceProperties returned error code %d, line(%d)\n", error, __LINE__);
     } else {
-      printf("GPU Device %d: \"%s\" with compute capability %d.%d\n\n", devID, deviceProp.name, deviceProp.major, deviceProp.minor);
+        printf("GPU Device %d: \"%s\" with compute capability %d.%d\n\n", devID, deviceProp.name, deviceProp.major, deviceProp.minor);
     }
+
+    for(int i=2; i<=4096; i=i*2) {
+    // Initialize matrix dimensions
+    int WA = i;
+    int WB = i;
+    int HA = i;
+    int HB = i;
+    int WC = WA;
+    int HC = HB;
 
     // utilities
     cudaEvent_t start;
