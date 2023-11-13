@@ -24,11 +24,12 @@ def one_hot(y):
 
 
 class MLP(object):
-    def __init__(self, activation_function_l1, learning_rate, lambd, num_epochs, d_input, d_hidden, d_output):
+    def __init__(self, activation_function_l1, forward_layer, learning_rate, lambd, num_epochs, d_input, d_hidden, d_output):
         self.lr = learning_rate
         self.num_epochs = num_epochs
         np.random.seed(0)    
         self.activation_function_l1 = activation_function_l1
+        self.forward_layer = forward_layer
         self.W1 = np.random.rand(d_input, d_hidden)-0.5 
         self.b1 = np.random.rand(d_hidden)-0.5 
         self.W2 = np.random.rand(d_hidden, d_output)-0.5 
@@ -42,9 +43,10 @@ class MLP(object):
         self.W2 = W2
         self.b2 = b2
         self.best_model_iteration = best_model_iteration
-        
+
+        # redifine all the following three functions in GP-GPU code
     def forward_function(self, X):
-        z1 = X.dot(self.W1) + self.b1.T # Output of the first layer
+        z1 = forward_layer(X, self.W1, self.b1) # Output of the first layer
         a1 = self.activation_function_l1(z1) # Sigmoid activation of the first layer
         z2 = a1.dot(self.W2) + self.b2.T # Output of the second layer
         probs = softmax(z2) #Apply softmax activation function on z2

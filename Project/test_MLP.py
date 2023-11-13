@@ -17,8 +17,10 @@ d_input=2
 d_hidden=10 
 d_output=2
 
+def forward_layer(X, W, b):
+    return X.dot(W) + b.T #[add_bias(col, b) for col in matrix_multiplication(X, W)]
 
-model = MLP(activation_function_l1, learning_rate, lambd, num_epochs, d_input, d_hidden, d_output)
+model = MLP(activation_function_l1, forward_layer, learning_rate, lambd, num_epochs, d_input, d_hidden, d_output)
 model.fit(X_train, y_train, print_loss=True, return_best_model=False)
 print("The test accuracy obtained is :", model.accuracy(y_test, model.predict(X_test)))
 
