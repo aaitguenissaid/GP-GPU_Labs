@@ -142,7 +142,7 @@ int main(int argc, char **argv) {
             grid = dim3(WC / threads.x, HC / threads.y);
 
             // execute the kernel
-            gemm_naive<<<grid, threads>>>(d_C, d_A, d_B, WA, WB);
+            gemm_naive<<<grid, threads>>>(d_C, d_A, d_B, WA, HB);
 
             // copy result from device to host
             cudaMemcpy(h_C, d_C, mem_size_C, cudaMemcpyDeviceToHost);

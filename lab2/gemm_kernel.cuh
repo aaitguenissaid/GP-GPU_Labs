@@ -1,4 +1,4 @@
-__global__ void gemm_naive(float *C, float *A, float *B, int wA, int wB) {
+__global__ void gemm_naive(float *C, float *A, float *B, int wA, int hB) {
     // Block index
     int bx = blockIdx.x;
     int by = blockIdx.y;
@@ -14,12 +14,12 @@ __global__ void gemm_naive(float *C, float *A, float *B, int wA, int wB) {
     float accu = 0.0;
 
     for (int k = 0; k < wA; k++) {
-        accu = accu + A[i * wA + k] * B[k * wB + j];
+        accu = accu + A[i * wA + k] * B[k * hB + j];
     }
 
     // Write the block sub-matrix to device memory;
     // each thread writes one element
-    C[i * wB + j] = accu;
+    C[i * hB + j] = accu;
 
 }
 
