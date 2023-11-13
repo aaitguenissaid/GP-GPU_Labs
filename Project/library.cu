@@ -52,12 +52,12 @@ __global__ void matrix_mul_kernel(float *C, float *A, float *B, int wA, int hB) 
 extern "C"
 float * matrix_multiplication(float *A, int wA, int hA,  float *B, nt wB, int hB) {
     const int blocksize = 256;
-    if(a_cols == b_rows) {
+    if(hA == wB) {
         int size = wA * hB;
         float *C;
         cudaMalloc((void **) &C, size);
         dim3 dimBlock(blocksize, blocksize);
-        dim3 dimGrid((rows-1)/dimBlock.x + 1, ceil(float(cols)/dimBlock.y));
+        dim3 dimGrid((wA-1)/dimBlock.x + 1, ceil(float(hB)/dimBlock.y));
         sigmoid_kernel<<<dimGrid, dimBlock>>>(A, B, C, wA, hB);
         cudaDeviceSynchronize();  // Wait for the kernel to finish
         return C;
@@ -94,12 +94,12 @@ __global__ void forward_layer_kernel(float *C, float *A, float *B, int wA, int h
 extern "C"
 float * forward_layer(float *A, int wA, int hA,  float *B, nt wB, int hB, float *b, int hb) {
     const int blocksize = 256;
-    if(a_cols == b_rows && hB == hb) {
+    if(hA == wB && hB == hb) {
         int size = wA * hB;
         float *C;
         cudaMalloc((void **) &C, size);
         dim3 dimBlock(blocksize, blocksize);
-        dim3 dimGrid((rows-1)/dimBlock.x + 1, ceil(float(cols)/dimBlock.y));
+        dim3 dimGrid((wA-1)/dimBlock.x + 1, ceil(float(hB)/dimBlock.y));
         sigmoid_kernel<<<dimGrid, dimBlock>>>(A, B, C, wA, hB, b);
         cudaDeviceSynchronize();  // Wait for the kernel to finish
         return C;
