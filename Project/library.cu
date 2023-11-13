@@ -50,10 +50,10 @@ __global__ void matrix_mul_kernel(float *C, float *A, float *B, int wA, int hB) 
 }
 
 extern "C"
-float * matrix_multiplication(float *A, int wA, int hA,  float *B, nt wB, int hB) {
+float * matrix_multiplication(float *A, int wA, int hA,  float *B, int wB, int hB) {
     const int blocksize = 256;
     if(hA == wB) {
-        int size = wA * hB;
+        int size = wA * hB * sizeof(float);
         float* C;
         cudaMalloc((void **) &C, size);
         dim3 dimBlock(blocksize, blocksize);
@@ -64,10 +64,8 @@ float * matrix_multiplication(float *A, int wA, int hA,  float *B, nt wB, int hB
     }
 }
 
-
-
 /*** Forward layer ***/
-__global__ void forward_layer_kernel(float *C, float *A, float *B, int wA, int hB, b) {
+__global__ void forward_layer_kernel(float *C, float *A, float *B, int wA, int hB, float *b) {
     // Block index
     int bx = blockIdx.x;
     int by = blockIdx.y;
@@ -92,10 +90,10 @@ __global__ void forward_layer_kernel(float *C, float *A, float *B, int wA, int h
 }
 
 extern "C"
-float * forward_layer(float *A, int wA, int hA,  float *B, nt wB, int hB, float *b, int hb) {
+float * forward_layer(float *A, int wA, int hA,  float *B, int wB, int hB, float *b, int hb) {
     const int blocksize = 256;
     if(hA == wB && hB == hb) {
-        int size = wA * hB;
+        int size = wA * hB * sizeof(float);
         float *C;
         cudaMalloc((void **) &C, size);
         dim3 dimBlock(blocksize, blocksize);
