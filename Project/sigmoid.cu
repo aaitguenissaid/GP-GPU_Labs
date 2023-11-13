@@ -10,6 +10,6 @@ __global__ void sigmoid_of_matrix(float *a, int rows, int cols) {
 
     if(i < rows && j < cols) {
         int index = i * cols + j;
-        a[index] = 1/(1 + np.exp(-a[index]))
+        a[index] = 1.0 /(1.0 + expf(-a[index]));
     }
 }
