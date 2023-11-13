@@ -1,4 +1,4 @@
-from MLP_cuda import MLP, shuffle_and_split_data, sigmoid
+from MLP_cuda import MLP, shuffle_and_split_data, sigmoid, forward_layer
 
 import sklearn.datasets
 import numpy as np
@@ -17,8 +17,6 @@ d_input=2
 d_hidden=10 
 d_output=2
 
-def forward_layer(X, W, b):
-    return X.dot(W) + b.T #[add_bias(col, b) for col in matrix_multiplication(X, W)]
 
 model = MLP(activation_function_l1, forward_layer, learning_rate, lambd, num_epochs, d_input, d_hidden, d_output)
 model.fit(X_train, y_train, print_loss=True, return_best_model=False)

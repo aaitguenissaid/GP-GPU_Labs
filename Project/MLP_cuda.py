@@ -22,6 +22,8 @@ def one_hot(y):
     one_hot_y[np.arange(y.size), y] = 1
     return one_hot_y
 
+def forward_layer(X, W, b):
+    return X.dot(W) + b.T #[add_bias(col, b) for col in matrix_multiplication(X, W)]
 
 class MLP(object):
     def __init__(self, activation_function_l1, forward_layer, learning_rate, lambd, num_epochs, d_input, d_hidden, d_output):
