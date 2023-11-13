@@ -11,7 +11,7 @@ __global__ void sigmoid_kernel(float *input, int rows, int cols) {
 
     if(i < rows && j < cols) {
         int index = i * cols + j;
-        input[index] = 1/(1 + expf(-input[index]));
+        input[index] = 1.0/(1.0 + expf(-input[index]));
     }
 }
 
@@ -102,4 +102,28 @@ float * forward_layer(float *A, int wA, int hA,  float *B, int wB, int hB, float
         cudaDeviceSynchronize();  // Wait for the kernel to finish
     }
     return C;
+}
+
+#include <cuda_runtime.h>
+#include <device_launch_parameters.h>
+
+__global__
+void transpose_kernel(float* input, float* output, int rows, int cols) {
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    int j = blockIdx.y * blockDim.y + threadIdx.y;
+
+    if (i < rows && j < cols) {
+        output[j * rows + i] = input[i * cols + j];
+    }
+}
+
+extern "C"
+void transpose_matrix(float* input, float* output, int rows, int cols) {
+    const int block_size = 256;  // Adjust this based on your matrix size
+    dim3 dimBlock(block_size, block_size);
+    dim3 dimGrid((rows - 1) / dimBlock.x + 1, (cols - 1) / dimBlock.y + 1);
+
+    transpose_kernel<<<dimGrid, dimBlock>>>(input, output, rows, cols);
+
+    cudaDeviceSynchronize();  // Wait for the kernel to finish
 }
