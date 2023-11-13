@@ -15,11 +15,10 @@ __global__ void sigmoid_kernel(float *input, int rows, int cols) {
 }
 
 extern "C"
-float* sigmoid_of_matrix(float *input, int rows, int cols) {
+void sigmoid_of_matrix(float *input, int rows, int cols) {
     const int blocksize = 256;
     dim3 dimBlock(blocksize, blocksize);
     dim3 dimGrid((rows-1)/dimBlock.x + 1, ceil(float(cols)/dimBlock.y));
     sigmoid_kernel<<<dimGrid, dimBlock>>>(input, rows, cols);
     cudaDeviceSynchronize();  // Wait for the kernel to finish
-    return input;
 }

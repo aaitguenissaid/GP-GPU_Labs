@@ -10,23 +10,27 @@ X, y = sklearn.datasets.make_moons(n_samples=300, noise=0.20)  # We create a dat
 
 X_train, y_train, X_test, y_test = shuffle_and_split_data(X, y, 0.8)
 
+# Load the shared library
+mylibrary = ctypes.CDLL('./sigmoid.so')
 
-def cuda_sigmoid(x):
-    # Load the shared library
-    mylibrary = ctypes.CDLL('./sigmoid.so')
+# Define the function signature
+mylibrary.sigmoid_of_matrix.argtypes = [ctypes.POINTER(ctypes.c_float), ctypes.c_int, ctypes.c_int]
+mylibrary.sigmoid_of_matrix.restype = None  # The function doesn't return anything directly
 
-    # Define the function signature
+def cuda_sigmoid(matrix):
+    # Flatten the matrix to a 1D array
+    flattened_matrix = matrix.flatten().astype(np.float32)
 
-    mylibrary.sigmoid_of_matrix.argtypes = [ctypes.POINTER(ctypes.c_float), ctypes.c_int, ctypes.c_int]
-    mylibrary.sigmoid_of_matrix.restype = ctypes.c_float
+    # Get a pointer to the flattened data
+    matrix_ptr = flattened_matrix.ctypes.data_as(ctypes.POINTER(ctypes.c_float))
 
-    # Get a pointer to the data
-    x_ptr = x.ctypes.data_as(ctypes.POINTER(ctypes.c_float))
+    # Call the CUDA function
+    mylibrary.sigmoid_of_matrix(matrix_ptr, len(matrix), len(matrix[0]))
 
-    # Call the CUDA function with the pointer
-    result = mylibrary.sigmoid_of_matrix(x_ptr, len(x), len(x[0]))
+    # Reshape the flattened result back to a matrix
+    result_matrix = np.reshape(flattened_matrix, matrix.shape)
 
-    return result
+    return result_matrix
 
 
 activation_function_l1=cuda_sigmoid
