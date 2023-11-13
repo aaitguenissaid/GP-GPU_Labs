@@ -10,7 +10,11 @@ __global__ void sigmoid_kernel(float *input, int rows, int cols) {
 
     if(i < rows && j < cols) {
         int index = i * cols + j;
+<<<<<<< HEAD
         input[index] = 1/(1 + np.exp(-input[index]))
+=======
+        a[index] = 1.0 /(1.0 + expf(-a[index]));
+>>>>>>> 73dce5baab5ffad71c84736c72ac14a437c4804b
     }
 }
 
