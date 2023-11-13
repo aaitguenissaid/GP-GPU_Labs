@@ -17,7 +17,7 @@ def cuda_sigmoid(x):
 
     # Define the function signature
 
-    my_library.sigmoid_of_matrix.argtypes = [ctypes.POINTER(ctypes.c_float), ctypes.c_int, ctypes.c_int]
+    mylibrary.sigmoid_of_matrix.argtypes = [ctypes.POINTER(ctypes.c_float), ctypes.c_int, ctypes.c_int]
     mylibrary.sigmoid_of_matrix.restype = ctypes.c_float
 
     # Get a pointer to the data
