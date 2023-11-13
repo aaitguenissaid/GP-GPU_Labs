@@ -10,7 +10,7 @@ __global__ void sigmoid_kernel(float *input, int rows, int cols) {
 
     if(i < rows && j < cols) {
         int index = i * cols + j;
-        input[index] = 1/(1 + expf(-input[index]))
+        input[index] = 1/(1 + expf(-input[index]));
     }
 }
 
@@ -21,5 +21,5 @@ float* sigmoid_of_matrix(float *input, int rows, int cols) {
     dim3 dimGrid((rows-1)/dimBlock.x + 1, ceil(float(cols)/dimBlock.y));
     sigmoid_kernel<<<dimGrid, dimBlock>>>(input, rows, cols);
     cudaDeviceSynchronize();  // Wait for the kernel to finish
-    return input
+    return input;
 }
