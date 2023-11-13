@@ -54,11 +54,11 @@ float * matrix_multiplication(float *A, int wA, int hA,  float *B, nt wB, int hB
     const int blocksize = 256;
     if(hA == wB) {
         int size = wA * hB;
-        float *C;
+        float* C;
         cudaMalloc((void **) &C, size);
         dim3 dimBlock(blocksize, blocksize);
         dim3 dimGrid((wA-1)/dimBlock.x + 1, ceil(float(hB)/dimBlock.y));
-        sigmoid_kernel<<<dimGrid, dimBlock>>>(A, B, C, wA, hB);
+        matrix_mul_kernel<<<dimGrid, dimBlock>>>(A, B, C, wA, hB);
         cudaDeviceSynchronize();  // Wait for the kernel to finish
         return C;
     }
@@ -100,30 +100,18 @@ float * forward_layer(float *A, int wA, int hA,  float *B, nt wB, int hB, float 
         cudaMalloc((void **) &C, size);
         dim3 dimBlock(blocksize, blocksize);
         dim3 dimGrid((wA-1)/dimBlock.x + 1, ceil(float(hB)/dimBlock.y));
-        sigmoid_kernel<<<dimGrid, dimBlock>>>(A, B, C, wA, hB, b);
+        forward_layer_kernel<<<dimGrid, dimBlock>>>(A, B, C, wA, hB, b);
         cudaDeviceSynchronize();  // Wait for the kernel to finish
         return C;
     }
 }
 
 
-/*** Matrix multiplication ***/
+/*** Matrix tranpose ***/
 __global__ void matrix_transpose_kernel(float *a, int a_rows, int a_cols) {
-    int i = blockIdx.y * blockDim.y + threadIdx.y; // row
-    int j = blockIdx.x * blockDim.x + threadIdx.x; // col
-
-    if(i < rows && j < cols) {
-        int index = i * cols + j;
-        c[index] = a[index] + b[index];
-    }
 }
 
 extern "C"
 void matrix_transpose(float *a, int a_rows, int a_cols,  float *b, int b_rows, int b_cols,) {
-    const int blocksize = 256;
-    dim3 dimBlock(blocksize, blocksize);
-    dim3 dimGrid((rows-1)/dimBlock.x + 1, ceil(float(cols)/dimBlock.y));
-    sigmoid_kernel<<<dimGrid, dimBlock>>>(input, rows, cols);
-    cudaDeviceSynchronize();  // Wait for the kernel to finish
 }
 
