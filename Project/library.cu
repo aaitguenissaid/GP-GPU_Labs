@@ -52,16 +52,16 @@ __global__ void matrix_mul_kernel(float *C, float *A, float *B, int wA, int hB) 
 extern "C"
 float * matrix_multiplication(float *A, int wA, int hA,  float *B, int wB, int hB) {
     const int blocksize = 256;
+    float *C;
     if(hA == wB) {
         int size = wA * hB * sizeof(float);
-        float* C;
         cudaMalloc((void **) &C, size);
         dim3 dimBlock(blocksize, blocksize);
         dim3 dimGrid((wA-1)/dimBlock.x + 1, ceil(float(hB)/dimBlock.y));
         matrix_mul_kernel<<<dimGrid, dimBlock>>>(A, B, C, wA, hB);
         cudaDeviceSynchronize();  // Wait for the kernel to finish
-        return C;
     }
+    return C;
 }
 
 /*** Forward layer ***/
@@ -92,14 +92,14 @@ __global__ void forward_layer_kernel(float *C, float *A, float *B, int wA, int h
 extern "C"
 float * forward_layer(float *A, int wA, int hA,  float *B, int wB, int hB, float *b, int hb) {
     const int blocksize = 256;
+    float *C;
     if(hA == wB && hB == hb) {
         int size = wA * hB * sizeof(float);
-        float *C;
         cudaMalloc((void **) &C, size);
         dim3 dimBlock(blocksize, blocksize);
         dim3 dimGrid((wA-1)/dimBlock.x + 1, ceil(float(hB)/dimBlock.y));
         forward_layer_kernel<<<dimGrid, dimBlock>>>(A, B, C, wA, hB, b);
         cudaDeviceSynchronize();  // Wait for the kernel to finish
-        return C;
     }
+    return C;
 }
