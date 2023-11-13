@@ -32,10 +32,10 @@ class MLP(object):
         np.random.seed(0)    
         self.activation_function_l1 = activation_function_l1
         self.forward_layer = forward_layer
-        self.W1 = np.random.rand(d_input, d_hidden)-0.5 
-        self.b1 = np.random.rand(d_hidden)-0.5 
-        self.W2 = np.random.rand(d_hidden, d_output)-0.5 
-        self.b2 = np.random.rand(d_output)-0.5 
+        self.W1 = np.random.rand(d_input, d_hidden).astype(np.float32)-0.5
+        self.b1 = np.random.rand(d_hidden).astype(np.float32)-0.5
+        self.W2 = np.random.rand(d_hidden, d_output).astype(np.float32)-0.5
+        self.b2 = np.random.rand(d_output).astype(np.float32)-0.5
         self.best_model_iteration = 0
         self.lambd = lambd # Weight decay
         
