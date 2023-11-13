@@ -1,5 +1,4 @@
-__global__ void
-gemm_naive(float *C, float *A, float *B, int wA, int wB) {
+__global__ void gemm_naive(float *C, float *A, float *B, int wA, int wB) {
     // Block index
     int bx = blockIdx.x;
     int by = blockIdx.y;
