@@ -1,3 +1,4 @@
+import ctypes
 from MLP_cuda import MLP, shuffle_and_split_data, sigmoid
 
 import sklearn.datasets
