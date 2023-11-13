@@ -105,13 +105,3 @@ float * forward_layer(float *A, int wA, int hA,  float *B, nt wB, int hB, float 
         return C;
     }
 }
-
-
-/*** Matrix tranpose ***/
-__global__ void matrix_transpose_kernel(float *a, int a_rows, int a_cols) {
-}
-
-extern "C"
-void matrix_transpose(float *a, int a_rows, int a_cols,  float *b, int b_rows, int b_cols,) {
-}
-
