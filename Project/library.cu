@@ -3,6 +3,7 @@
 //
 
 #include <iostream>
+#include <math.h>
 
 /*** Sigmoid function ***/
 __global__ void sigmoid_kernel(float *input, int rows, int cols) {
