@@ -17,12 +17,26 @@ __global__ void sigmoid_kernel(float *input, int rows, int cols) {
 }
 
 extern "C"
-void sigmoid_of_matrix(float *input, int rows, int cols) {
-    const int blocksize = 256;
+float * sigmoid_of_matrix(float *input, int rows, int cols) {
+    const int blocksize = 16;
+    unsigned int mem_size_input = sizeof(float) * rows * cols;
+
+    float *d_input;
+    cudaMalloc((void **) &d_input, mem_size_input);
+    cudaMemcpy(d_input, input, mem_size_input, cudaMemcpyHostToDevice);
+
     dim3 dimBlock(blocksize, blocksize);
     dim3 dimGrid((rows-1)/dimBlock.x + 1, ceil(float(cols)/dimBlock.y));
-    sigmoid_kernel<<<dimGrid, dimBlock>>>(input, rows, cols);
+    sigmoid_kernel<<<dimGrid, dimBlock>>>(d_input, rows, cols);
+    
+    // allocate host memory for the result
+    float *h_output = (float *) malloc(mem_size_input);
+
+    cudaMemcpy(h_output, d_input, mem_size_input, cudaMemcpyDeviceToHost);
+    
     cudaDeviceSynchronize();  // Wait for the kernel to finish
+    // TODO : free memory of gpu
+    return h_output;
 }
 
 /*** Matrix multiplication ***/
